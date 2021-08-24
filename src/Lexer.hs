@@ -17,7 +17,7 @@ lexer = Token.makeTokenParser $ Token.LanguageDef
     , Token.opStart = oneOf "!@#$%^&*-+=<>./?\\|~"
     , Token.opLetter = oneOf "!@#$%^&*-+=<>./?\\|~"
     , Token.reservedNames = ["let", "match", "with"]
-    , Token.reservedOpNames = ["let", "match", "with"]
+    , Token.reservedOpNames = ["->", "=>", ":"]
     , Token.caseSensitive = True
     }
 
