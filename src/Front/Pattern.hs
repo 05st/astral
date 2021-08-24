@@ -6,8 +6,8 @@ import Front.Name
 import Front.Literal
 
 data Pattern
-    = PatCon Name [Pattern]
-    | PatVar Name
-    | PatAs Name Pattern
-    | PatLit Literal
-    | PatWild
+    = PCon Name [Pattern]
+    | PVar Name
+    | PAs Name Pattern
+    | PLit Literal
+    | PWild

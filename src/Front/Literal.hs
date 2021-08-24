@@ -1,7 +1,7 @@
 module Front.Literal where
 
 data Literal
-    = LitInt Integer
-    | LitBool Bool
-    | LitChar Char
-    | LitUnit
+    = LInt Integer
+    | LBool Bool
+    | LChar Char
+    | LUnit
