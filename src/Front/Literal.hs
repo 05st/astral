@@ -5,3 +5,4 @@ data Literal
     | LBool Bool
     | LChar Char
     | LUnit
+    deriving (Show)

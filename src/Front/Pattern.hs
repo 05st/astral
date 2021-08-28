@@ -11,3 +11,4 @@ data Pattern
     | PAs Name Pattern
     | PLit Literal
     | PWild
+    deriving (Show)
