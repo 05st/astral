@@ -17,7 +17,7 @@ data Expr
     | ELam [Pattern] Expr
     | ELet Name Signature Expr Expr
     | EMatch Expr [(Pattern, Expr)]
-    | EOper Oper [Expr]
+    | EOper [Either Oper Expr]
     | EList [Expr]
     | EString String
     deriving (Show)
