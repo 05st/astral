@@ -13,7 +13,7 @@ type Signature = Maybe Type
 data Expr
     = EVar Name
     | ELit Literal
-    | EApp Expr Expr
+    | EApp Expr [Expr]
     | ELam [Pattern] Expr
     | ELet Name Signature Expr Expr
     | EMatch Expr [(Pattern, Expr)]

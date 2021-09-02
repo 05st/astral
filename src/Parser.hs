@@ -13,21 +13,30 @@ import Lexer
 type Parser a = ParsecT Text.Text () Identity a
 
 expression :: Parser Expr
-expression = operator <|> term
+expression = try application <|> operator <|> term
 
 operator :: Parser Expr
 operator = do
-    list <- many1 ((Left . Text.pack <$> operIdent) <|> (Right <$> term))
+    list <- many1 ((Left . Text.pack <$> (whitespace *> operIdent <* whitespace)) <|> (Right <$> term))
     case list of
         [Right expr] -> pure expr
-        [Left oper] -> fail "Expected one or more operands"
+        [Left _] -> fail "Expected one or more operands"
         other -> (pure . EOper) other
+
+application :: Parser Expr
+application = do
+    fn <- term
+    calls <- many1 term
+    pure (EApp fn calls)
 
 term :: Parser Expr
 term = value
 
 value :: Parser Expr
-value = (ELit <$> literal) <|> parens expression
+value = (ELit <$> literal) <|> try variable <|> parens expression
+
+variable :: Parser Expr
+variable = EVar . Text.pack <$> (identifier <|> parens operIdent)
 
 literal :: Parser Literal
 literal = try (LFloat <$> float) <|> integer
