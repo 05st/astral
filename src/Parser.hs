@@ -8,6 +8,7 @@ import Text.Parsec
 
 import Front.Syntax
 import Front.Literal
+import Front.Pattern
 import Lexer
 
 type Parser a = ParsecT Text.Text () Identity a
@@ -30,10 +31,16 @@ application = do
     pure (EApp fn calls)
 
 term :: Parser Expr
-term = value
+term = try lambda <|> value
+
+lambda :: Parser Expr
+lambda = do
+    params <- many1 pattern
+    reservedOp "=>"
+    ELam params <$> expression
 
 value :: Parser Expr
-value = (ELit <$> literal) <|> try variable <|> parens expression
+value = (ELit <$> try literal) <|> try variable <|> parens expression
 
 variable :: Parser Expr
 variable = EVar . Text.pack <$> (identifier <|> parens operIdent)
@@ -43,6 +50,29 @@ literal = try (LFloat <$> float) <|> integer
 
 integer :: Parser Literal
 integer = LInt <$> (decimal <|> octal <|> hexadecimal)
+
+pattern :: Parser Pattern
+pattern = parens pattern <|> patternWild <|> try patternAs <|> patternCon <|> patternVar <|> patternLit
+
+patternWild :: Parser Pattern
+patternWild = PWild <$ reservedOp "_"
+
+patternVar :: Parser Pattern
+patternVar = PVar . Text.pack <$> identifier
+
+patternAs :: Parser Pattern
+patternAs = do
+    var <- identifier
+    reservedOp "@"
+    PAs (Text.pack var) <$> pattern
+
+patternCon :: Parser Pattern
+patternCon = do
+    ident <- dataIdent
+    PCon (Text.pack ident) <$> many pattern
+
+patternLit :: Parser Pattern
+patternLit = PLit <$> literal
 
 parse :: Text.Text -> Either String Expr
 parse input =

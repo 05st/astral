@@ -6,8 +6,7 @@ import Data.Functor.Identity
 import Text.Parsec
 import qualified Text.Parsec.Token as Token
 
-lexer :: Token.GenTokenParser Text () Identity
-lexer = Token.makeTokenParser $ Token.LanguageDef
+tokenDef = Token.LanguageDef
     { Token.commentStart = "{-"
     , Token.commentEnd = "-}"
     , Token.commentLine = "--"
@@ -17,11 +16,18 @@ lexer = Token.makeTokenParser $ Token.LanguageDef
     , Token.opStart = oneOf "!@#$%^&*-+=<>./?\\|~"
     , Token.opLetter = oneOf "!@#$%^&*-+=<>./?\\|~"
     , Token.reservedNames = ["let", "match", "with"]
-    , Token.reservedOpNames = ["->", "=>", ":"]
+    , Token.reservedOpNames = ["->", "=>", "_", "@", "\\"]
     , Token.caseSensitive = True
     }
 
+lexer :: Token.GenTokenParser Text () Identity
+lexer = Token.makeTokenParser tokenDef
+
+dataLexer :: Token.GenTokenParser Text () Identity
+dataLexer = Token.makeTokenParser $ tokenDef { Token.identStart = upper }
+
 identifier = Token.identifier lexer
+dataIdent = Token.identifier dataLexer
 reserved = Token.reserved lexer
 reservedOp = Token.reservedOp lexer
 operIdent = Token.operator lexer
