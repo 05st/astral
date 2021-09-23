@@ -102,7 +102,10 @@ typeApp :: Parser Type
 typeApp = (:@:) <$> typeBase <*> type'
 
 typeBase :: Parser Type
-typeBase = (flip TCon KStar . Text.pack <$> dataIdent) <|> parens type'
+typeBase = (flip TCon None . Text.pack <$> dataIdent) <|> typeVar <|> parens type'
+
+typeVar :: Parser Type
+typeVar = flip TVar None . Text.pack <$> identifier
 
 parse :: Text.Text -> Either String Expr
 parse input =

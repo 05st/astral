@@ -16,6 +16,7 @@ data Kind
     = KStar
     | KVar Name
     | Kind :=> Kind
+    | None
     deriving (Show)
 
 infixr :=>
