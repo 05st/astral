@@ -15,7 +15,7 @@ tokenDef = Token.LanguageDef
     , Token.identLetter = alphaNum
     , Token.opStart = oneOf "!@#$%^&*-+=<>./?\\|~"
     , Token.opLetter = oneOf "!@#$%^&*-+=<>./?\\|~"
-    , Token.reservedNames = ["let", "match", "with"]
+    , Token.reservedNames = ["let", "match", "with", "in"]
     , Token.reservedOpNames = ["->", "=>", "_", "@", "\\"]
     , Token.caseSensitive = True
     }

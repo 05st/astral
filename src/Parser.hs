@@ -9,12 +9,13 @@ import Text.Parsec
 import Front.Syntax
 import Front.Literal
 import Front.Pattern
+import Front.Type
 import Lexer
 
 type Parser a = ParsecT Text.Text () Identity a
 
 expression :: Parser Expr
-expression = try application <|> operator <|> term
+expression = try application <|> try operator <|> term
 
 operator :: Parser Expr
 operator = do
@@ -31,13 +32,24 @@ application = do
     pure (EApp fn calls)
 
 term :: Parser Expr
-term = try lambda <|> value
+term = try lambda <|> letExpr <|> value
 
 lambda :: Parser Expr
 lambda = do
     params <- many1 pattern
     reservedOp "=>"
     ELam params <$> expression
+
+letExpr :: Parser Expr
+letExpr = do
+    reserved "let"
+    var <- identifier
+    sigMaybe <- signature
+    reservedOp "="
+    binding <- expression
+    whitespace
+    reserved "in"
+    ELet (Text.pack var) sigMaybe binding <$> expression
 
 value :: Parser Expr
 value = (ELit <$> try literal) <|> try variable <|> parens expression
@@ -73,6 +85,24 @@ patternCon = do
 
 patternLit :: Parser Pattern
 patternLit = PLit <$> literal
+
+signature :: Parser Signature
+signature = optionMaybe (reservedOp ":" *> type')
+
+type' :: Parser Type
+type' = try typeFunc <|> try typeApp <|> typeBase
+
+typeFunc :: Parser Type
+typeFunc = do
+    inputType <- try typeApp <|> typeBase
+    reservedOp "->"
+    (inputType :->) <$> type'
+
+typeApp :: Parser Type
+typeApp = (:@:) <$> typeBase <*> type'
+
+typeBase :: Parser Type
+typeBase = (flip TCon KStar . Text.pack <$> dataIdent) <|> parens type'
 
 parse :: Text.Text -> Either String Expr
 parse input =
