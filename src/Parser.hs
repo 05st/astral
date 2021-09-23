@@ -1,3 +1,5 @@
+{-# Language TupleSections #-}
+
 module Parser where
 
 import qualified Data.Text as Text
@@ -13,6 +15,23 @@ import Front.Type
 import Lexer
 
 type Parser a = ParsecT Text.Text () Identity a
+
+letDecl :: Parser Decl
+letDecl = do
+    reserved "let"
+    var <- identifier
+    sigMaybe <- optionMaybe typeAnnot
+    try (do
+        branches <- braces (many1 letBranch)
+        pure (DLetFn (Text.pack var) sigMaybe branches))
+        <|> reservedOp "=" *> (DLet (Text.pack var) sigMaybe <$> expression)
+    where
+        letBranch = do
+            patterns <- pure <$> pattern
+            reservedOp "="
+            expr <- expression
+            semi
+            pure (patterns, expr) 
 
 expression :: Parser Expr
 expression = try application <|> try operator <|> term
@@ -44,7 +63,7 @@ letExpr :: Parser Expr
 letExpr = do
     reserved "let"
     var <- identifier
-    sigMaybe <- signature
+    sigMaybe <- optionMaybe typeAnnot
     reservedOp "="
     binding <- expression
     whitespace
@@ -84,10 +103,10 @@ patternCon = do
     PCon (Text.pack ident) <$> many pattern
 
 patternLit :: Parser Pattern
-patternLit = PLit <$> literal
+patternLit = PLit <$> literal <* whitespace
 
-signature :: Parser Signature
-signature = optionMaybe (reservedOp ":" *> type')
+typeAnnot :: Parser Type
+typeAnnot = reservedOp ":" *> type'
 
 type' :: Parser Type
 type' = try typeFunc <|> try typeApp <|> typeBase
@@ -107,9 +126,9 @@ typeBase = (flip TCon None . Text.pack <$> dataIdent) <|> typeVar <|> parens typ
 typeVar :: Parser Type
 typeVar = flip TVar None . Text.pack <$> identifier
 
-parse :: Text.Text -> Either String Expr
+parse :: Text.Text -> Either String Decl
 parse input =
-    case runParser expression () "astral" input of
+    case runParser letDecl () "astral" input of
         Left err -> Left (show err)
-        Right expr -> Right expr
+        Right decl -> Right decl
 

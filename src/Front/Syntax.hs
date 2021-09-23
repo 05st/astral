@@ -10,6 +10,11 @@ import Front.Name
 type Oper = Text
 type Signature = Maybe Type
 
+data Decl
+    = DLetFn Name Signature [([Pattern], Expr)]
+    | DLet Name Signature Expr
+    deriving (Show)
+
 data Expr
     = EVar Name
     | ELit Literal
