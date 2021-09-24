@@ -16,18 +16,19 @@ import Lexer
 
 type Parser a = ParsecT Text.Text () Identity a
 
+declaration :: Parser Decl
+declaration = letDecl
+
 letDecl :: Parser Decl
 letDecl = do
     reserved "let"
     var <- identifier
     sigMaybe <- optionMaybe typeAnnot
-    try (do
-        branches <- braces (many1 letBranch)
-        pure (DLetFn (Text.pack var) sigMaybe branches))
-        <|> reservedOp "=" *> (DLet (Text.pack var) sigMaybe <$> expression)
+    (reservedOp "=" *> (DLet (Text.pack var) sigMaybe <$> expression) <* semi)
+        <|> (DLetFn (Text.pack var) sigMaybe <$> (braces (many1 letBranch) <|> many1 letBranch))
     where
         letBranch = do
-            patterns <- pure <$> pattern
+            patterns <- many1 pattern
             reservedOp "="
             expr <- expression
             semi
@@ -51,7 +52,7 @@ application = do
     pure (EApp fn calls)
 
 term :: Parser Expr
-term = try lambda <|> letExpr <|> value
+term = try lambda <|> match <|> letExpr <|> value
 
 lambda :: Parser Expr
 lambda = do
@@ -70,17 +71,35 @@ letExpr = do
     reserved "in"
     ELet (Text.pack var) sigMaybe binding <$> expression
 
+match :: Parser Expr
+match = do
+    reserved "match"
+    mexpr <- expression
+    reserved "with"
+    EMatch mexpr <$> sepBy1 matchBranch comma
+    where
+        matchBranch = do
+            pat <- pattern
+            reservedOp "->"
+            (pat,) <$> expression
+
 value :: Parser Expr
-value = (ELit <$> try literal) <|> try variable <|> parens expression
+value = (ELit <$> try literal) <|> list <|> try variable <|> parens expression
+
+list :: Parser Expr
+list = EList <$> brackets (sepBy expression comma)
 
 variable :: Parser Expr
 variable = EVar . Text.pack <$> (identifier <|> parens operIdent)
 
 literal :: Parser Literal
-literal = try (LFloat <$> float) <|> integer
+literal = try (LFloat <$> float) <|> integer <|> bool <|> (LUnit <$ reserved "()") <|> (LChar <$> charLiteral) <|> (LString <$> stringLiteral)
 
 integer :: Parser Literal
 integer = LInt <$> (decimal <|> octal <|> hexadecimal)
+
+bool :: Parser Literal
+bool = (LBool True <$ reserved "True") <|> (LBool False <$ reserved "False")
 
 pattern :: Parser Pattern
 pattern = parens pattern <|> patternWild <|> try patternAs <|> patternCon <|> patternVar <|> patternLit
@@ -126,9 +145,8 @@ typeBase = (flip TCon None . Text.pack <$> dataIdent) <|> typeVar <|> parens typ
 typeVar :: Parser Type
 typeVar = flip TVar None . Text.pack <$> identifier
 
-parse :: Text.Text -> Either String Decl
+parse :: Text.Text -> Either String [Decl]
 parse input =
-    case runParser letDecl () "astral" input of
+    case runParser (many declaration) () "astral" input of
         Left err -> Left (show err)
-        Right decl -> Right decl
-
+        Right decls -> Right decls

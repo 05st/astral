@@ -5,5 +5,6 @@ data Literal
     | LFloat Double
     | LBool Bool
     | LChar Char
+    | LString String
     | LUnit
     deriving (Show)
