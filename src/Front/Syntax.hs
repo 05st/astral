@@ -22,6 +22,7 @@ data Expr
     | ELam [Pattern] Expr
     | ELet Name Signature Expr Expr
     | EMatch Expr [(Pattern, Expr)]
+    | EIf Expr Expr Expr
     | EOper [Either Oper Expr]
     | EList [Expr]
     | EString String

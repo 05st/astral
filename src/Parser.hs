@@ -52,7 +52,7 @@ application = do
     pure (EApp fn calls)
 
 term :: Parser Expr
-term = try lambda <|> match <|> letExpr <|> value
+term = try lambda <|> match <|> ifExpr <|> letExpr <|> value
 
 lambda :: Parser Expr
 lambda = do
@@ -82,6 +82,15 @@ match = do
             pat <- pattern
             reservedOp "->"
             (pat,) <$> expression
+
+ifExpr :: Parser Expr
+ifExpr = do
+    reserved "if"
+    cexpr <- expression
+    reserved "then"
+    expr <- expression
+    reserved "else"
+    EIf cexpr expr <$> expression
 
 value :: Parser Expr
 value = (ELit <$> try literal) <|> list <|> try variable <|> parens expression
