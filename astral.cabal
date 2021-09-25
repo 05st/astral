@@ -25,12 +25,14 @@ source-repository head
 
 library
   exposed-modules:
+      Desugarer
       Front.Literal
       Front.Name
       Front.Pattern
       Front.Syntax
       Front.Type
       Lexer
+      Monad
       Parser
   other-modules:
       Paths_astral
@@ -38,6 +40,7 @@ library
       src
   build-depends:
       base >=4.7 && <5
+    , mtl
     , parsec
     , text
   default-language: Haskell2010
@@ -52,6 +55,7 @@ executable astral-exe
   build-depends:
       astral
     , base >=4.7 && <5
+    , mtl
     , parsec
     , text
   default-language: Haskell2010
@@ -67,6 +71,7 @@ test-suite astral-test
   build-depends:
       astral
     , base >=4.7 && <5
+    , mtl
     , parsec
     , text
   default-language: Haskell2010

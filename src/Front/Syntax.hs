@@ -27,3 +27,5 @@ data Expr
     | EList [Expr]
     | EString String
     deriving (Show)
+
+type Module = (Name, [Decl])
