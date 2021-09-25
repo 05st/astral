@@ -25,15 +25,16 @@ source-repository head
 
 library
   exposed-modules:
+      Base.Literal
+      Base.Name
+      Base.Pattern
+      Base.Type
+      Core
       Desugarer
-      Front.Literal
-      Front.Name
-      Front.Pattern
-      Front.Syntax
-      Front.Type
       Lexer
       Monad
       Parser
+      Syntax
   other-modules:
       Paths_astral
   hs-source-dirs:

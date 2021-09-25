@@ -1,11 +1,11 @@
 {-# Language PatternSynonyms #-}
 {-# Language OverloadedStrings #-}
 
-module Front.Type where
+module Base.Type where
 
 import Data.Text
 
-import Front.Name
+import Base.Name
 
 data Type
     = TCon Name Kind

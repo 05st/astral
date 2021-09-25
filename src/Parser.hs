@@ -1,6 +1,6 @@
 {-# Language TupleSections #-}
 
-module Parser where
+module Parser (Parser.parse) where
 
 import qualified Data.Text as Text
 import Data.Functor.Identity
@@ -12,8 +12,8 @@ import Control.Monad.Except
 import Text.Parsec
 import Text.Parsec.Expr
 
+import Base.Literal
 import Front.Syntax
-import Front.Literal
 import Front.Pattern
 import Front.Type
 
@@ -119,16 +119,19 @@ ifExpr = do
     EIf cexpr expr <$> expression
 
 value :: Parser Expr
-value = (ELit <$> try literal) <|> list <|> try variable <|> parens expression
+value = (ELit <$> try literal) <|> list <|> stringLit <|> try variable <|> parens expression
 
 list :: Parser Expr
 list = EList <$> brackets (sepBy expression comma)
+
+stringLit :: Parser Expr
+stringLit = EString <$> stringLiteral
 
 variable :: Parser Expr
 variable = EVar . Text.pack <$> (identifier <|> parens operIdent)
 
 literal :: Parser Literal
-literal = try (LFloat <$> float) <|> integer <|> bool <|> (LUnit <$ reserved "()") <|> (LChar <$> charLiteral) <|> (LString <$> stringLiteral)
+literal = try (LFloat <$> float) <|> integer <|> bool <|> (LUnit <$ reserved "()") <|> (LChar <$> charLiteral)
 
 integer :: Parser Literal
 integer = LInt <$> (decimal <|> octal <|> hexadecimal)

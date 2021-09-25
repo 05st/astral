@@ -1,4 +1,4 @@
-module Front.Name where
+module Base.Name where
 
 import Data.Text
 

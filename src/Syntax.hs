@@ -1,11 +1,11 @@
-module Front.Syntax where
+module Syntax where
 
 import Data.Text
 
-import Front.Literal
-import Front.Pattern
-import Front.Type
-import Front.Name
+import Base.Literal
+import Base.Name
+import Base.Type
+import Base.Pattern
 
 type Oper = Text
 type Signature = Maybe Type

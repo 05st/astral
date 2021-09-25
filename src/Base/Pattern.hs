@@ -1,9 +1,9 @@
-module Front.Pattern where
+module Base.Pattern where
 
 import Data.Text
 
-import Front.Name
-import Front.Literal
+import Base.Name
+import Base.Literal
 
 data Pattern
     = PCon Name [Pattern]
