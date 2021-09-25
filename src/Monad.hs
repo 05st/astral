@@ -16,3 +16,10 @@ data AstralState = AstralState
     , _ast :: Maybe Module
     } deriving (Show)
 
+emptyState :: AstralState
+emptyState = AstralState
+    { _fname = Nothing
+    , _imports = []
+    , _src = Nothing
+    , _ast = Nothing
+    }

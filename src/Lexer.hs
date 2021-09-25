@@ -15,15 +15,15 @@ tokenDef = Token.LanguageDef
     , Token.identLetter = alphaNum
     , Token.opStart = oneOf "!@#$%^&*-+=<>./?\\|~"
     , Token.opLetter = oneOf "!@#$%^&*-+=<>./?\\|~"
-    , Token.reservedNames = ["let", "in", "match", "with", "if", "then", "else", "True", "False", "()"]
+    , Token.reservedNames = ["let", "in", "match", "with", "if", "then", "else", "True", "False", "()", "infixl", "infixr", "infix", "prefix", "postfix"]
     , Token.reservedOpNames = ["->", "=>", "_", "@", "\\"]
     , Token.caseSensitive = True
     }
 
-lexer :: Token.GenTokenParser Text () Identity
+lexer :: Token.GenTokenParser Text s Identity
 lexer = Token.makeTokenParser tokenDef
 
-dataLexer :: Token.GenTokenParser Text () Identity
+dataLexer :: Token.GenTokenParser Text s Identity
 dataLexer = Token.makeTokenParser $ tokenDef { Token.identStart = upper }
 
 identifier = Token.identifier lexer

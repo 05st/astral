@@ -5,6 +5,7 @@ module Parser where
 import qualified Data.Text as Text
 import Data.Functor.Identity
 import Data.List
+import Data.Function
 
 import Text.Parsec
 
@@ -13,11 +14,12 @@ import Front.Literal
 import Front.Pattern
 import Front.Type
 import Lexer
+import Text.Parsec.Expr
 
-type Parser a = ParsecT Text.Text () Identity a
+type Parser a = ParsecT Text.Text [OperatorDef] Identity a
 
 declaration :: Parser Decl
-declaration = letDecl
+declaration = letDecl <|> operDecl
 
 letDecl :: Parser Decl
 letDecl = do
@@ -34,22 +36,42 @@ letDecl = do
             semi
             pure (patterns, expr) 
 
+operDecl :: Parser Decl
+operDecl = (parseOperDecl "infixl" ALeft <|> parseOperDecl "infixr" ARight <|> parseOperDecl "infix" ANone
+        <|> parseOperDecl "prefix" APrefix <|> parseOperDecl "postfix" APostfix) <* semi
+    where
+        addOperator op = modifyState (op :)
+        parseOperDecl str assoc = do
+            reserved str
+            prec <- decimal
+            whitespace
+            oper <- Text.pack <$> parens operIdent
+            let op = OperatorDef assoc prec oper
+            addOperator op
+            pure (DOper op)
+
 expression :: Parser Expr
-expression = try application <|> try operator <|> term
+expression = foldl1 EApp <$> many1 operator
 
 operator :: Parser Expr
 operator = do
-    list <- many1 ((Left . Text.pack <$> (whitespace *> operIdent <* whitespace)) <|> (Right <$> term))
-    case list of
-        [Right expr] -> pure expr
-        [Left _] -> fail "Expected one or more operands"
-        other -> (pure . EOper) other
-
-application :: Parser Expr
-application = do
-    fn <- term
-    calls <- many1 term
-    pure (EApp fn calls)
+    opers <- getState 
+    let table = mkTable opers
+    buildExpressionParser table term
+    where
+        mkTable ops = map (map toParser) . groupBy ((==) `on` prec) . sortBy (flip compare `on` prec) $ ops
+        toParser (OperatorDef assoc _ oper) = case assoc of
+            ALeft -> infixOp oper (EBinOp oper) (toAssoc assoc)
+            ARight -> infixOp oper (EBinOp oper) (toAssoc assoc)
+            ANone -> infixOp oper (EBinOp oper) (toAssoc assoc)
+            APrefix -> prefixOp oper (EUnaOp oper)
+            APostfix -> postfixOp oper (EUnaOp oper)
+        infixOp name f = Infix (reservedOp (Text.unpack name) >> return f)
+        prefixOp name f = Prefix (reservedOp (Text.unpack name) >> return f)
+        postfixOp name f = Postfix (reservedOp (Text.unpack name) >> return f)
+        toAssoc ALeft = AssocLeft
+        toAssoc ARight = AssocRight
+        toAssoc ANone = AssocNone
 
 term :: Parser Expr
 term = try lambda <|> match <|> ifExpr <|> letExpr <|> value
@@ -156,6 +178,6 @@ typeVar = flip TVar None . Text.pack <$> identifier
 
 parse :: Text.Text -> Either String [Decl]
 parse input =
-    case runParser (many declaration) () "astral" input of
+    case runParser (many declaration) [] "astral" input of
         Left err -> Left (show err)
         Right decls -> Right decls
