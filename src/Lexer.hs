@@ -16,7 +16,7 @@ tokenDef = Token.LanguageDef
     , Token.opStart = oneOf "!@#$%^&*-+=<>./?\\|~"
     , Token.opLetter = oneOf "!@#$%^&*-+=<>./?\\|~"
     , Token.reservedNames = ["let", "in", "match", "with", "if", "then", "else", "True", "False", "()", "infixl", "infixr", "infix", "prefix", "postfix"]
-    , Token.reservedOpNames = ["->", "=>", "_", "@", "\\"]
+    , Token.reservedOpNames = ["->", "=>", "_", "@"]
     , Token.caseSensitive = True
     }
 
