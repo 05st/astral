@@ -7,14 +7,18 @@ import Data.Functor.Identity
 import Data.List
 import Data.Function
 
+import Control.Monad.Except
+
 import Text.Parsec
+import Text.Parsec.Expr
 
 import Front.Syntax
 import Front.Literal
 import Front.Pattern
 import Front.Type
+
 import Lexer
-import Text.Parsec.Expr
+import Monad
 
 type Parser a = ParsecT Text.Text [OperatorDef] Identity a
 
@@ -45,7 +49,7 @@ operDecl = (parseOperDecl "infixl" ALeft <|> parseOperDecl "infixr" ARight <|> p
             reserved str
             prec <- decimal
             whitespace
-            oper <- Text.pack <$> parens operIdent
+            oper <- Text.pack <$> operIdent
             let op = OperatorDef assoc prec oper
             addOperator op
             pure (DOper op)
@@ -176,8 +180,8 @@ typeBase = (flip TCon None . Text.pack <$> dataIdent) <|> typeVar <|> parens typ
 typeVar :: Parser Type
 typeVar = flip TVar None . Text.pack <$> identifier
 
-parse :: Text.Text -> Either String [Decl]
+parse :: Text.Text -> Astral [Decl]
 parse input =
-    case runParser (many declaration) [] "astral" input of
-        Left err -> Left (show err)
-        Right decls -> Right decls
+    case runParser (many1 declaration) [] "astral" input of
+        Left err -> throwError (show err)
+        Right decls -> pure decls

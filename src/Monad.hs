@@ -1,3 +1,5 @@
+{-# Language GeneralizedNewtypeDeriving #-}
+
 module Monad where
 
 import Control.Monad.Except
@@ -6,7 +8,10 @@ import qualified Data.Text as Text
 
 import Front.Syntax
 
-newtype AstralT m a = AstralT (ExceptT String (StateT AstralState m) a)
+type Error = String
+
+newtype AstralT m a = AstralT { runAstralT :: ExceptT Error (StateT AstralState m) a }
+    deriving (Functor, Applicative, Monad, MonadError Error)
 type Astral = AstralT IO
 
 data AstralState = AstralState
@@ -23,3 +28,6 @@ emptyState = AstralState
     , _src = Nothing
     , _ast = Nothing
     }
+
+runAstral :: AstralT m a -> AstralState -> m (Either Error a, AstralState)
+runAstral = runStateT . runExceptT . runAstralT
