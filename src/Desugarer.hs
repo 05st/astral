@@ -1,7 +1,8 @@
 module Desugarer (desugar) where
 
-import Syntax as Syntax
 import Monad
+import Syntax
+import Core
 
-desugar :: [Syntax.Decl] -> Astral a
+desugar :: [Syntax.Module] -> Astral Core.UntypedModule
 desugar = undefined

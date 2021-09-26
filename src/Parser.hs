@@ -13,9 +13,9 @@ import Text.Parsec
 import Text.Parsec.Expr
 
 import Base.Literal
-import Front.Syntax
-import Front.Pattern
-import Front.Type
+import Base.Pattern
+import Base.Type
+import Syntax
 
 import Lexer
 import Monad

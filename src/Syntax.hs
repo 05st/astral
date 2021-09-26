@@ -6,8 +6,8 @@ import Base.Literal
 import Base.Name
 import Base.Type
 import Base.Pattern
+import Base.OperatorDef
 
-type Oper = Text
 type Signature = Maybe Type
 
 data Decl
@@ -29,19 +29,5 @@ data Expr
     | EList [Expr]
     | EString String
     deriving (Show)
-
-data Assoc
-    = ALeft
-    | ARight
-    | ANone
-    | APrefix
-    | APostfix
-    deriving (Show)
-
-data OperatorDef = OperatorDef
-    { assoc :: Assoc
-    , prec :: Integer
-    , oper :: Oper
-    } deriving (Show)
 
 type Module = (Name, [Decl])

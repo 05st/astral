@@ -27,6 +27,7 @@ library
   exposed-modules:
       Base.Literal
       Base.Name
+      Base.OperatorDef
       Base.Pattern
       Base.Type
       Core
@@ -41,6 +42,7 @@ library
       src
   build-depends:
       base >=4.7 && <5
+    , containers
     , mtl
     , parsec
     , text
@@ -56,6 +58,7 @@ executable astral-exe
   build-depends:
       astral
     , base >=4.7 && <5
+    , containers
     , mtl
     , parsec
     , text
@@ -72,6 +75,7 @@ test-suite astral-test
   build-depends:
       astral
     , base >=4.7 && <5
+    , containers
     , mtl
     , parsec
     , text

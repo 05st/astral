@@ -5,8 +5,11 @@ module Monad where
 import Control.Monad.Except
 import Control.Monad.State
 import qualified Data.Text as Text
+import qualified Data.Map as Map
 
-import Front.Syntax
+import Base.Name
+import Base.Type
+import Syntax
 
 type Error = String
 
@@ -19,6 +22,8 @@ data AstralState = AstralState
     , _imports :: [FilePath]
     , _src :: Maybe Text.Text
     , _ast :: Maybe Module
+    , _tenv :: Map.Map Name Type
+    , _kenv :: Map.Map Name Kind
     } deriving (Show)
 
 emptyState :: AstralState
@@ -27,6 +32,8 @@ emptyState = AstralState
     , _imports = []
     , _src = Nothing
     , _ast = Nothing
+    , _tenv = Map.empty
+    , _kenv = Map.empty
     }
 
 runAstral :: AstralT m a -> AstralState -> m (Either Error a, AstralState)
