@@ -15,13 +15,13 @@ data Decl a
     deriving (Show)
 
 data Expr a
-    = EApp (Expr a) (Expr a)
-    | EVar Name a
-    | ELam Name a (Expr a)
-    | EMatch (Expr a) [(Pattern, Expr a)]
-    | EIf (Expr a) (Expr a) (Expr a)
-    | ELet Name (Expr a) (Expr a)
-    | ELit Literal
+    = EApp a (Expr a) (Expr a)
+    | EVar a Name
+    | ELam a Name (Expr a)
+    | EMatch a (Expr a) [(Pattern, Expr a)]
+    | EIf a (Expr a) (Expr a) (Expr a)
+    | ELet a Name (Expr a) (Expr a)
+    | ELit a Literal
     deriving (Show)
 
 type UntypedExpr = Expr ()

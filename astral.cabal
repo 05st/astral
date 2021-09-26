@@ -32,6 +32,7 @@ library
       Base.Type
       Core
       Desugarer
+      Inferer
       Lexer
       Monad
       Parser
