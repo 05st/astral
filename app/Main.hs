@@ -8,9 +8,11 @@ import System.Environment
 import Control.Monad
 
 import Parser
+import Desugarer
 import Monad
+import Core
 
-compile = parse
+compile = parse >=> desugar
 
 main :: IO ()
 main = do

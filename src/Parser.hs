@@ -1,4 +1,5 @@
-{-# Language TupleSections #-}
+{-# Language TupleSections #-} 
+{-# Language OverloadedStrings #-}
 
 module Parser (Parser.parse) where
 
@@ -15,6 +16,7 @@ import Text.Parsec.Expr
 import Base.Literal
 import Base.Pattern
 import Base.Type
+import Base.OperatorDef
 import Syntax
 
 import Lexer
@@ -63,7 +65,7 @@ operator = do
     let table = mkTable opers
     buildExpressionParser table term
     where
-        mkTable ops = map (map toParser) . groupBy ((==) `on` prec) . sortBy (flip compare `on` prec) $ ops
+        mkTable = map (map toParser) . groupBy ((==) `on` prec) . sortBy (flip compare `on` prec)
         toParser (OperatorDef assoc _ oper) = case assoc of
             ALeft -> infixOp oper (EBinOp oper) (toAssoc assoc)
             ARight -> infixOp oper (EBinOp oper) (toAssoc assoc)
@@ -90,12 +92,11 @@ letExpr :: Parser Expr
 letExpr = do
     reserved "let"
     var <- identifier
-    sigMaybe <- optionMaybe typeAnnot
     reservedOp "="
     binding <- expression
     whitespace
     reserved "in"
-    ELet (Text.pack var) sigMaybe binding <$> expression
+    ELet (Text.pack var) binding <$> expression
 
 match :: Parser Expr
 match = do
@@ -183,8 +184,8 @@ typeBase = (flip TCon None . Text.pack <$> dataIdent) <|> typeVar <|> parens typ
 typeVar :: Parser Type
 typeVar = flip TVar None . Text.pack <$> identifier
 
-parse :: Text.Text -> Astral [Decl]
+parse :: Text.Text -> Astral Module
 parse input =
     case runParser (many1 declaration) [] "astral" input of
         Left err -> throwError (show err)
-        Right decls -> pure decls
+        Right decls -> pure ("astral", decls)

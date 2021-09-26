@@ -21,7 +21,7 @@ data Expr
     | ELit Literal
     | EApp Expr Expr
     | ELam [Pattern] Expr
-    | ELet Name Signature Expr Expr
+    | ELet Name Expr Expr
     | EMatch Expr [(Pattern, Expr)]
     | EIf Expr Expr Expr
     | EBinOp Oper Expr Expr

@@ -7,15 +7,17 @@ import Base.Pattern
 import Base.OperatorDef
 
 type Module a = (Name, [Decl a])
+type Signature = Maybe Type
 
 data Decl a
-    = DLet Name [([Pattern], Expr a)]
+    = DLet Name Signature [([Pattern], Expr a)]
     | DOper OperatorDef
+    deriving (Show)
 
 data Expr a
     = EApp (Expr a) (Expr a)
-    | EVar Name Type
-    | ELam Name Type (Expr a)
+    | EVar Name a
+    | ELam Name a (Expr a)
     | EMatch (Expr a) [(Pattern, Expr a)]
     | EIf (Expr a) (Expr a) (Expr a)
     | ELet Name (Expr a) (Expr a)
