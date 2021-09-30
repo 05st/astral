@@ -10,12 +10,14 @@ import Base.Name
 
 data TVar
     = TV Name Kind
-    deriving (Show)
+    deriving (Show, Eq, Ord)
 
 data Type
     = TCon Name Kind
     | TVar TVar
     | Type :@: Type
+
+data Constraint = CEqual Type Type | CClass Type (Set.Set String)
 
 data TypeScheme
     = Forall (Set.Set TVar) Type deriving (Show)
@@ -25,7 +27,7 @@ data Kind
     | KVar Name
     | Kind :=> Kind
     | None
-    deriving (Show)
+    deriving (Show, Eq, Ord)
 
 infixr :=>
 infixr :->

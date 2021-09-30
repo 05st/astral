@@ -14,8 +14,6 @@ import Core
 import Monad
 
 data TypeError = Mismatch Type Type
-
-type Constraint = (Type, Type)
 type Infer = RWST (Map.Map Name TypeScheme) [Constraint] InferState (Except TypeError)
 
 newtype InferState = InferState

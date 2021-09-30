@@ -36,6 +36,7 @@ library
       Lexer
       Monad
       Parser
+      Substitution
       Syntax
   other-modules:
       Paths_astral
