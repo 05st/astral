@@ -34,6 +34,8 @@ infixr :->
 
 pattern a :-> b = (TCon "->" (KStar :=> KStar :=> KStar)) :@: a :@: b
 pattern TInt = (TCon "Int" KStar)
+pattern TBool = (TCon "Bool" KStar)
+pattern TChar = (TCon "Char" KStar)
 
 instance Show Type where
     show ((TCon "->" _) :@: a :@: b) = '(' : show a ++ " -> " ++ show b ++ ")"

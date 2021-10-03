@@ -182,7 +182,7 @@ typeBase :: Parser Type
 typeBase = (flip TCon None . Text.pack <$> dataIdent) <|> typeVar <|> parens type'
 
 typeVar :: Parser Type
-typeVar = flip TVar None . Text.pack <$> identifier
+typeVar = TVar . flip TV None . Text.pack <$> identifier
 
 parse :: Text.Text -> Astral Module
 parse input =
